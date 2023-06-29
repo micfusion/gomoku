@@ -8,7 +8,8 @@ const io = socketIO(server);
 
 const PORT = process.env.PORT || 3000;
 
-app.use(express.static('public'));
+const publicDirectoryPath = path.join(__dirname, 'public');
+app.use(express.static(publicDirectoryPath));
 
 app.get('/', (req, res) => {
   res.send('Server is running');
