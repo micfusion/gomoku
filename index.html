@@ -8,16 +8,41 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 30px;
+	
     }
 
     #board {
       border: 2px solid #000;
-      background-color: #FFD89C;
+      background-color: #f2d48f;
     }
+	.text {
+      position: absolute;
+      right: 100px;
+      top: 150px;
+      font-size: 50px;
+	  font-family: "Monotype Corosiva";
+	  color: #f5f5f5;
+    }
+	.my-button {
+	  position: absolute;
+	  background-color:#f2d48f;
+	  border: 2px solid black;
+	  border-radius: 8px;
+      top: 300px;
+	  left: 725px;
+      width: 175px;
+      height: 50px;
+	  cursor: pointer;
+	  
+	 }
   </style>
 </head>
-<body style = "background-color:#F4D6AE;">
+<body style = "background-color:#49402B;">
+  <div>
+	  <div class="text"><b>Nathan's Gomoku Game</b></div>
+  </div>
   <canvas id="board" width="600" height="600"></canvas>
+  <button class="my-button" onclick="resetBoard()"><b>New Game</b></button>
 
   <script>
     const canvas = document.getElementById('board');
@@ -31,11 +56,16 @@
     const WHITE = '#fff';
 	var boolean = false;
 
-    const stones = Array.from(Array(boardSize), () => Array(boardSize).fill(null));
+    let stones = createEmptyBoard();
 
     canvas.addEventListener('click', placeStone);
 
     drawBoard();
+	  
+	function createEmptyBoard() {
+      return Array.from(Array(boardSize), () => Array(boardSize).fill(null));
+    }
+	  
 
     function drawBoard() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -96,6 +126,12 @@
 
       drawBoard();
     }
+	function resetBoard() {
+		stones = createEmptyBoard();
+		boolean = false;
+		drawBoard();
+	}
   </script>
 </body>
 </html>
+
