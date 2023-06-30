@@ -8,43 +8,43 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 30px;
-	
     }
 
     #board {
       border: 2px solid #000;
       background-color: #f2d48f;
     }
-	.text {
+
+    .text {
       position: absolute;
       right: 100px;
       top: 150px;
       font-size: 50px;
-	  font-family: "Monotype Corosiva";
-	  color: #f5f5f5;
+      font-family: "Monotype Corosiva";
+      color: #f5f5f5;
     }
-	.my-button {
-	  position: absolute;
-	  background-color:#f2d48f;
-	  border: 2px solid black;
-	  border-radius: 8px;
+
+    .my-button {
+      position: absolute;
+      background-color: #f2d48f;
+      border: 2px solid black;
+      border-radius: 8px;
       top: 300px;
-	  left: 725px;
+      left: 850px;
       width: 175px;
       height: 50px;
-	  cursor: pointer;
-	  
-	 }
+      cursor: pointer;
+    }
   </style>
 </head>
-<body style = "background-color:#49402B;">
-  <div>
-	  <div class="text"><b>Nathan's Gomoku Game</b></div>
-  </div>
-  <canvas id="board" width="600" height="600"></canvas>
-  <button class="my-button" onclick="resetBoard()"><b>New Game</b></button>
+<body style="background-color:#49402B;">
+<div>
+    <div class="text"><b>Nathan's Go Game</b></div>
+</div>
+<canvas id="board" width="600" height="600"></canvas>
+<button class="my-button" onclick="resetBoard()"><b>New Game</b></button>
 
-  <script>
+<script>
     const canvas = document.getElementById('board');
     const ctx = canvas.getContext('2d');
 
@@ -52,86 +52,187 @@
     const boardSize = 19;
     const margin = gridSize / 2;
 
-    const BLACK = '#000';
-    const WHITE = '#fff';
-	var boolean = false;
+    const BLACK = 'black';
+    const WHITE = 'white';
 
     let stones = createEmptyBoard();
+    let currentPlayer = BLACK;
+    let previousBoardState = null;
 
     canvas.addEventListener('click', placeStone);
 
     drawBoard();
-	  
-	function createEmptyBoard() {
-      return Array.from(Array(boardSize), () => Array(boardSize).fill(null));
+
+    function createEmptyBoard() {
+        return Array.from(Array(boardSize), () => Array(boardSize).fill(null));
     }
-	  
 
     function drawBoard() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      ctx.beginPath();
-      for (let i = 0; i < boardSize; i++) {
-        const y = i * gridSize + margin;
-        ctx.moveTo(margin, y);
-        ctx.lineTo(canvas.width - margin, y);
-      }
-      for (let j = 0; j < boardSize; j++) {
-        const x = j * gridSize + margin;
-        ctx.moveTo(x, margin);
-        ctx.lineTo(x, canvas.height - margin);
-      }
-      ctx.strokeStyle = '#000';
-      ctx.stroke();
-
-      for (let row = 0; row < boardSize; row++) {
-        for (let col = 0; col < boardSize; col++) {
-          const stoneX = col * gridSize + margin;
-          const stoneY = row * gridSize + margin;
-
-          if (stones[row][col] === 'black') {
-            drawStone(stoneX, stoneY, BLACK);
-          } else if (stones[row][col] === 'white') {
-            drawStone(stoneX, stoneY, WHITE);
-          }
+        ctx.beginPath();
+        for (let i = 0; i < boardSize; i++) {
+            const y = i * gridSize + margin;
+            ctx.moveTo(margin, y);
+            ctx.lineTo(canvas.width - margin, y);
         }
-      }
+        for (let j = 0; j < boardSize; j++) {
+            const x = j * gridSize + margin;
+            ctx.moveTo(x, margin);
+            ctx.lineTo(x, canvas.height - margin);
+        }
+        ctx.strokeStyle = '#000';
+        ctx.stroke();
+
+        for (let row = 0; row < boardSize; row++) {
+            for (let col = 0; col < boardSize; col++) {
+                const stoneX = col * gridSize + margin;
+                const stoneY = row * gridSize + margin;
+
+                if (stones[row][col] === BLACK) {
+                    drawStone(stoneX, stoneY, BLACK);
+                } else if (stones[row][col] === WHITE) {
+                    drawStone(stoneX, stoneY, WHITE);
+                }
+            }
+        }
     }
 
     function drawStone(x, y, color) {
-      ctx.beginPath();
-      ctx.arc(x, y, gridSize / 2.5, 0, 2 * Math.PI);
-      ctx.fillStyle = color;
-      ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x, y, gridSize / 2.5, 0, 2 * Math.PI);
+        ctx.fillStyle = color;
+        ctx.fill();
     }
 
     function placeStone(event) {
-      const rect = canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
 
-      const col = Math.floor(x / gridSize);
-      const row = Math.floor(y / gridSize);
+        const col = Math.floor(x / gridSize);
+        const row = Math.floor(y / gridSize);
 
-      if (stones[row][col] === null) {
-		if (boolean === false) {
-          stones[row][col] = 'black';
-		  boolean = true;
-	    }
-		else if (boolean === true) {
-		  stones[row][col] = 'white';
-		  boolean = false;
-		}
-	  }
+        if (isValidMove(row, col)) {
+            stones[row][col] = currentPlayer;
 
-      drawBoard();
+            if (!isKoViolation()) {
+                captureStones(row, col);
+
+                previousBoardState = cloneBoard(stones);
+                currentPlayer = currentPlayer === BLACK ? WHITE : BLACK;
+                drawBoard();
+            } else {
+                console.log('Ko violation. Cannot play in the same position twice.');
+            }
+        }
     }
-	function resetBoard() {
-		stones = createEmptyBoard();
-		boolean = false;
-		drawBoard();
-	}
-  </script>
+
+    function isValidMove(row, col) {
+        return stones[row][col] === null && hasLiberties(row, col);
+    }
+
+    function hasLiberties(row, col) {
+        const visited = createEmptyBoard();
+        const liberties = [];
+
+        searchLiberties(row, col);
+        const hasLiberties = liberties.length > 0;
+
+        return hasLiberties;
+
+        function searchLiberties(row, col) {
+            if (row < 0 || row >= boardSize || col < 0 || col >= boardSize) {
+                return;
+            }
+
+            if (visited[row][col]) {
+                return;
+            }
+
+            visited[row][col] = true;
+
+            if (stones[row][col] === null) {
+                liberties.push({ row, col });
+                return;
+            }
+
+            if (stones[row][col] === currentPlayer) {
+                searchLiberties(row - 1, col);
+                searchLiberties(row + 1, col);
+                searchLiberties(row, col - 1);
+                searchLiberties(row, col + 1);
+            }
+        }
+    }
+
+    function captureStones(row, col) {
+        const opponent = currentPlayer === BLACK ? WHITE : BLACK;
+        const capturedStones = [];
+
+        const adjacentStones = getAdjacentStones(row, col);
+
+        adjacentStones.forEach(stone => {
+            const { row, col } = stone;
+            if (stones[row][col] === opponent && !hasLiberties(row, col)) {
+                capturedStones.push({ row, col });
+            }
+        });
+
+        capturedStones.forEach(stone => {
+            stones[stone.row][stone.col] = null;
+        });
+    }
+
+    function getAdjacentStones(row, col) {
+        const adjacentStones = [];
+        const positions = [
+            { row: row - 1, col },
+            { row: row + 1, col },
+            { row, col: col - 1 },
+            { row, col: col + 1 },
+        ];
+
+        positions.forEach(pos => {
+            const { row, col } = pos;
+            if (row >= 0 && row < boardSize && col >= 0 && col < boardSize) {
+                adjacentStones.push({ row, col });
+            }
+        });
+
+        return adjacentStones;
+    }
+
+    function isKoViolation() {
+        if (!previousBoardState) {
+            return false;
+        }
+
+        return compareBoardStates(stones, previousBoardState);
+    }
+
+    function compareBoardStates(board1, board2) {
+        for (let row = 0; row < boardSize; row++) {
+            for (let col = 0; col < boardSize; col++) {
+                if (board1[row][col] !== board2[row][col]) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    function cloneBoard(board) {
+        return board.map(row => [...row]);
+    }
+
+    function resetBoard() {
+        stones = createEmptyBoard();
+        currentPlayer = BLACK;
+        previousBoardState = null;
+        drawBoard();
+    }
+</script>
 </body>
 </html>
-
