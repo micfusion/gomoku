@@ -39,7 +39,7 @@
 </head>
 <body style="background-color:#49402B;">
   <div>
-    <div class="text"><b>Nathan's Gomoku Game</b></div>
+    <div class="text"><b>Nathan Will Beat You In Gomoku</b></div>
   </div>
   <canvas id="board" width="600" height="600"></canvas>
   <button class="my-button" onclick="resetBoard()"><b>New Game</b></button>
@@ -191,7 +191,7 @@
     }
 
     function displayWinner(winner) {
-      const text = winner === BLACK ? 'Black wins!' : 'White wins!';
+      const text = winner === BLACK ? 'Nathan wins!' : 'Nathan wins!';
       ctx.font = '48px Monotype Corosiva';
       ctx.fillStyle = '#000';
       ctx.fillText(text, canvas.width / 2 - 100, canvas.height / 2);
